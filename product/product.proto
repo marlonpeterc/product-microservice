@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package product;
+
+service Product {
+	// Get all Products with filter - A server-to-client streaming RPC
+	rpc GetProducts(ProductFilter) returns (stream ProductRequest) {}
+
+	// Create a new Product - A simple RPC
+	rpc CreateProduct (ProductRequest) returns (ProductResponse) {}
+}
+
+message ProductRequest {
+	int32 id = 1;
+	string name = 2;
+	string shortDesc = 3;
+	string desc = 4;
+}
+
+message ProductResponse {
+	int32 id = 1;
+	bool success = 2;
+}
+
+message ProductFilter {
+	string keyword = 1;
+}
