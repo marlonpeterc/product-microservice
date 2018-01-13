@@ -2,34 +2,27 @@ package main
 
 import (
 	"fmt"
-	cfg "github.com/marlonpeterc/product-microservice/config"
+	"os"
+
+	"github.com/kataras/iris"
+	"github.com/kataras/iris/middleware/recover"
+	R "github.com/marlonpeterc/product-microservice/routes"
 )
 
 func main() {
+
 	fmt.Print("Starting product-microservice...")
 
-	db := cfg.DB()
+	app := iris.New()
+	app.Use(recover.New())
 
-	var (
-		id               string
-		productName      string
-		productShortDesc string
-		productDesc      string
-	)
-	products := []interface{}{}
-
-	rows, err := db.Query("SELECT id, product_name, product_short_desc, product_desc FROM products ORDER BY product_name")
-	cfg.Err(err)
-
-	for rows.Next() {
-		rows.Scan(&id, &productName, &productShortDesc, &productDesc)
-		product := map[string]interface{}{
-			"id":               id,
-			"productName":      productName,
-			"productShortDesc": productShortDesc,
-			"productDesc":      productDesc,
-		}
-		fmt.Println(product)
-		products = append(products, product)
+	api := app.Party("/api")
+	{
+		api.Get("/ping", R.Ping)
+		api.Get("/products", R.GetProducts)
+		api.Get("/products/:id", R.GetProduct)
 	}
+
+	app.Run(iris.Addr(os.Getenv("PORT")))
+
 }
